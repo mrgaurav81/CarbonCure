@@ -1,0 +1,158 @@
+<!-- calculator.html - Emissions input form -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carbon Calculator - Carbon Cure</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Carbon Cure</h1>
+            <p>Measure, Understand, and Reduce Your Carbon Footprint</p>
+        </div>
+    </header>
+    
+    <main class="container">
+        <section class="calculator">
+            <h2>Carbon Emissions Calculator</h2>
+            
+            <form id="emissions-form">
+                <div class="form-section">
+                    <h3>Company Information</h3>
+                    <div class="form-group">
+                        <label for="company-name">Company Name</label>
+                        <input type="text" id="company-name" name="company-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="industry">Industry</label>
+                        <select id="industry" name="industry">
+                            <option value="manufacturing">Manufacturing</option>
+                            <option value="technology">Technology</option>
+                            <option value="retail">Retail</option>
+                            <option value="services">Services</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="employees">Number of Employees</label>
+                        <input type="number" id="employees" name="employees" min="1">
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>Energy Usage</h3>
+                    <div class="form-group">
+                        <label for="electricity">Electricity (kWh per month)</label>
+                        <input type="number" id="electricity" name="electricity" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="natural-gas">Natural Gas (therms per month)</label>
+                        <input type="number" id="natural-gas" name="natural-gas" min="0">
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>Transportation</h3>
+                    <div class="form-group">
+                        <label for="vehicle-miles">Company Vehicle Miles (per month)</label>
+                        <input type="number" id="vehicle-miles" name="vehicle-miles" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="air-travel">Business Air Travel (miles per month)</label>
+                        <input type="number" id="air-travel" name="air-travel" min="0">
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>Manufacturing & Operations</h3>
+                    <div class="form-group">
+                        <label for="raw-materials">Raw Materials Used (tons per month)</label>
+                        <input type="number" id="raw-materials" name="raw-materials" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="waste">Waste Generated (tons per month)</label>
+                        <input type="number" id="waste" name="waste" min="0">
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Calculate Emissions</button>
+                </div>
+            </form>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Carbon Cure. Created for Hackathon.</p>
+        </div>
+    </footer>
+    
+    <script src="main.js"></script>
+    <script src="api.js"></script>
+    <script>
+        document.getElementById('emissions-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Collect form data
+            const formData = {
+                company: {
+                    name: document.getElementById('company-name').value,
+                    industry: document.getElementById('industry').value,
+                    employees: parseInt(document.getElementById('employees').value) || 0
+                },
+                energy: {
+                    electricity: parseFloat(document.getElementById('electricity').value) || 0,
+                    natural_gas: parseFloat(document.getElementById('natural-gas').value) || 0
+                },
+                transportation: {
+                    vehicle_miles: parseFloat(document.getElementById('vehicle-miles').value) || 0,
+                    air_travel: parseFloat(document.getElementById('air-travel').value) || 0
+                },
+                manufacturing: {
+                    raw_materials: parseFloat(document.getElementById('raw-materials').value) || 0,
+                    waste: parseFloat(document.getElementById('waste').value) || 0
+                }
+            };
+            
+            // Send data to API
+            calculateEmissions(formData);
+        });
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('emissions-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Collect form data
+            const formData = {
+                company: {
+                    name: document.getElementById('company-name').value,
+                    industry: document.getElementById('industry').value,
+                    employees: parseInt(document.getElementById('employees').value) || 0
+                },
+                energy: {
+                    electricity: parseFloat(document.getElementById('electricity').value) || 0,
+                    natural_gas: parseFloat(document.getElementById('natural-gas').value) || 0
+                },
+                transportation: {
+                    vehicle_miles: parseFloat(document.getElementById('vehicle-miles').value) || 0,
+                    air_travel: parseFloat(document.getElementById('air-travel').value) || 0
+                },
+                manufacturing: {
+                    raw_materials: parseFloat(document.getElementById('raw-materials').value) || 0,
+                    waste: parseFloat(document.getElementById('waste').value) || 0
+                }
+            };
+            
+            // Send data to API
+            calculateEmissions(formData);
+        });
+    });
+</script>
+</body>
+</html>
+

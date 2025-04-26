@@ -1,0 +1,217 @@
+<!-- results.html - Score and recommendations display -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results - Carbon Cure</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Carbon Cure</h1>
+            <p>Measure, Understand, and Reduce Your Carbon Footprint</p>
+        </div>
+    </header>
+    
+    <main class="container">
+        <section class="results">
+            <h2>Your Carbon Footprint Results</h2>
+            
+            <div id="company-info">
+                <h3>Company: <span id="result-company-name">-</span></h3>
+                <p>Industry: <span id="result-industry">-</span></p>
+            </div>
+            
+            <div class="result-summary">
+                <div class="result-card emissions">
+                    <h4>Total Emissions</h4>
+                    <div class="result-value" id="total-emissions">-</div>
+                    <div class="unit">kg CO2e</div>
+                </div>
+                
+                <div class="result-card score">
+                    <h4>Sustainability Score</h4>
+                    <div class="score-circle">
+                        <div class="score-value" id="sustainability-score">-</div>
+                        <div class="score-max">/100</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="emissions-breakdown">
+                <h3>Emissions Breakdown</h3>
+                <div class="chart-container">
+                    <canvas id="emissions-chart"></canvas>
+                </div>
+            </div>
+            
+            <div class="recommendations">
+                <h3>AI-Powered Recommendations</h3>
+                <div id="recommendations-list">
+                    <!-- Recommendations will be inserted here -->
+                </div>
+            </div>
+            
+            <div class="actions">
+                <a href="calculator.html" class="btn btn-secondary">Recalculate</a>
+                <button id="download-report" class="btn btn-primary">Download Report</button>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Carbon Cure. Created for Hackathon.</p>
+        </div>
+    </footer>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="main.js"></script>
+    <script src="api.js"></script>
+    <script>
+        // Load results from session storage (placed there by the calculator)
+        document.addEventListener('DOMContentLoaded', function() {
+            const results = JSON.parse(sessionStorage.getItem('carbonResults'));
+            const companyData = JSON.parse(sessionStorage.getItem('companyData'));
+            
+            if (results && companyData) {
+                displayResults(results, companyData);
+            } else {
+                // No results found, redirect to calculator
+                window.location.href = 'calculator.html';
+            }
+        });
+        
+        function displayResults(results, companyData) {
+            // Display company info
+            document.getElementById('result-company-name').textContent = companyData.company.name;
+            document.getElementById('result-industry').textContent = companyData.company.industry;
+            
+            // Display total emissions
+            document.getElementById('total-emissions').textContent = Math.round(results.emissions);
+            
+            // Display sustainability score
+            document.getElementById('sustainability-score').textContent = results.sustainability_score;
+            
+            // Create emissions breakdown chart
+            const ctx = document.getElementById('emissions-chart').getContext('2d');
+            
+            // Calculate emissions breakdown
+            const energyEmissions = (companyData.energy.electricity * 0.4) + (companyData.energy.natural_gas * 2.0);
+            const transportEmissions = (companyData.transportation.vehicle_miles * 0.35) + (companyData.transportation.air_travel * 0.2);
+            const manufacturingEmissions = (companyData.manufacturing.raw_materials * 2.5) + (companyData.manufacturing.waste * 1.8);
+            
+            const emissionsChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Energy', 'Transportation', 'Manufacturing'],
+                    datasets: [{
+                        data: [energyEmissions, transportEmissions, manufacturingEmissions],
+                        backgroundColor: ['#4CAF50', '#2196F3', '#FFC107']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            
+            // Display recommendations
+            const recommendationsContainer = document.getElementById('recommendations-list');
+            results.recommendations.forEach(rec => {
+                const recCard = document.createElement('div');
+                recCard.className = 'recommendation-card';
+                recCard.innerHTML = `
+                    <h4>${rec.title}</h4>
+                    <p>${rec.description}</p>
+                    <div class="impact">Potential Impact: <span class="impact-value">${rec.impact_percentage}%</span></div>
+                `;
+                recommendationsContainer.appendChild(recCard);
+            });
+            
+            // Download report
+            document.getElementById('download-report').addEventListener('click', function() {
+                alert('This would generate a downloadable PDF report in a complete implementation.');
+            });
+        }
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const results = JSON.parse(sessionStorage.getItem('carbonResults'));
+        const companyData = JSON.parse(sessionStorage.getItem('companyData'));
+        
+        if (results && companyData) {
+            displayResults(results, companyData);
+        } else {
+            // No results found, redirect to calculator
+            window.location.href = 'calculator.html';
+        }
+    });
+    
+    function displayResults(results, companyData) {
+        // Display company info
+        document.getElementById('result-company-name').textContent = companyData.company.name;
+        document.getElementById('result-industry').textContent = companyData.company.industry;
+        
+        // Display total emissions
+        document.getElementById('total-emissions').textContent = Math.round(results.emissions);
+        
+        // Display sustainability score
+        document.getElementById('sustainability-score').textContent = results.sustainability_score;
+        
+        // Create emissions breakdown chart
+        const ctx = document.getElementById('emissions-chart').getContext('2d');
+        
+        // Calculate emissions breakdown
+        const energyEmissions = (companyData.energy.electricity * 0.4) + (companyData.energy.natural_gas * 2.0);
+        const transportEmissions = (companyData.transportation.vehicle_miles * 0.35) + (companyData.transportation.air_travel * 0.2);
+        const manufacturingEmissions = (companyData.manufacturing.raw_materials * 2.5) + (companyData.manufacturing.waste * 1.8);
+        
+        const emissionsChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Energy', 'Transportation', 'Manufacturing'],
+                datasets: [{
+                    data: [energyEmissions, transportEmissions, manufacturingEmissions],
+                    backgroundColor: ['#4CAF50', '#2196F3', '#FFC107']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+        
+        // Display recommendations
+        const recommendationsContainer = document.getElementById('recommendations-list');
+        results.recommendations.forEach(rec => {
+            const recCard = document.createElement('div');
+            recCard.className = 'recommendation-card';
+            recCard.innerHTML = `
+                <h4>${rec.title}</h4>
+                <p>${rec.description}</p>
+                <div class="impact">Potential Impact: <span class="impact-value">${rec.impact_percentage}%</span></div>
+            `;
+            recommendationsContainer.appendChild(recCard);
+        });
+        
+        // Download report
+        document.getElementById('download-report').addEventListener('click', function() {
+            alert('This would generate a downloadable PDF report in a complete implementation.');
+        });
+    }
+</script>
+</body>
+</html>
+
+
