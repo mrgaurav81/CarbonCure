@@ -1,50 +1,473 @@
-<!-- index.html - Main landing page -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carbon Cure - Calculate Your Carbon Footprint</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="main.js"></script>
-    <script src="api.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Carbon Cure - Calculate Your Carbon Footprint</title>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <!-- Animate.css -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+  <!-- AOS (Animate on Scroll) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css"/>
+
+  <style>
+    :root {
+      --primary: #2ecc71;
+      --primary-dark: #27ae60;
+      --secondary: #3498db;
+      --dark: #2c3e50;
+      --light: #ecf0f1;
+      --text: #333;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      scroll-behavior: smooth;
+      background: #f9f9f9;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--text);
+    }
+
+    body.fade-in {
+      animation: fadeInBody 1.5s ease-in-out forwards;
+    }
+
+    @keyframes fadeInBody {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    /* Navigation */
+    nav {
+      background: white;
+      box-shadow: var(--shadow);
+      position: fixed;
+      width: 100%;
+      z-index: 1000;
+      animation: slideDown 1s ease forwards;
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-100%); }
+      to { transform: translateY(0); }
+    }
+
+    .nav-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+    }
+
+    .logo {
+      font-size: 1.7rem;
+      font-weight: bold;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+
+    .logo i {
+      color: var(--primary);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      font-weight: 500;
+      color: var(--dark);
+      transition: color 0.3s;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: '';
+      height: 2px;
+      width: 0;
+      background: var(--primary);
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      transition: 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .btn {
+      padding: 0.8rem 1.5rem;
+      border-radius: 50px;
+      background: var(--primary);
+      color: white;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    /* Hero */
+    .hero {
+      padding: 12rem 0 6rem;
+      background: linear-gradient(135deg, rgba(46,204,113,0.2) 0%, rgba(52,152,219,0.2) 100%);
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      animation: fadeInUp 1s ease;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      max-width: 600px;
+      margin-inline: auto;
+      animation: fadeInUp 1.5s ease;
+    }
+
+    .hero-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      animation: fadeInUp 2s ease;
+    }
+
+    .hero-image {
+      margin-top: 2rem;
+      overflow: hidden;
+      border-radius: 15px;
+      animation: zoomIn 2s ease;
+      box-shadow: var(--shadow);
+    }
+
+    .hero-image img {
+      width: 100%;
+      display: block;
+      transition: transform 0.5s;
+    }
+
+    .hero-image img:hover {
+      transform: scale(1.05);
+    }
+
+    /* Sections */
+    .section-header h2 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      color: var(--dark);
+    }
+
+    .section-header p {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 3rem;
+      color: #666;
+    }
+
+    .features, .how-it-works {
+      padding: 5rem 0;
+      background: white;
+    }
+
+    .features-grid, .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+
+    .feature-card, .step {
+      background: var(--light);
+      border-radius: 10px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      transition: 0.3s;
+      text-align: center;
+    }
+
+    .feature-card:hover, .step:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .feature-icon, .step-number {
+      margin-bottom: 1rem;
+    }
+
+    .feature-icon i, .step-number {
+      font-size: 2rem;
+      color: var(--primary);
+    }
+
+    .cta {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      text-align: center;
+      padding: 5rem 0;
+      position: relative;
+    }
+
+    .cta::before {
+      content: '';
+      position: absolute;
+      top: -40px;
+      left: 0;
+      width: 100%;
+      height: 40px;
+      background: #f9f9f9;
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+    }
+
+    footer {
+      background: var(--dark);
+      color: white;
+      padding: 4rem 0;
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+    }
+
+    .footer-column h3 {
+      margin-bottom: 1rem;
+    }
+
+    .footer-column ul {
+      list-style: none;
+    }
+
+    .footer-column ul li {
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-column a {
+      color: #bbb;
+      transition: color 0.3s;
+    }
+
+    .footer-column a:hover {
+      color: white;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 0.8rem;
+      margin-top: 1rem;
+    }
+
+    .social-links a {
+      background: rgba(255,255,255,0.1);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s;
+    }
+
+    .social-links a:hover {
+      background: var(--primary);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+      .hero-buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
 </head>
-<body>
-    <header>
-        <div class="container">
-            <h1>Carbon Cure</h1>
-            <p>Measure, Understand, and Reduce Your Carbon Footprint</p>
+
+<body class="fade-in">
+
+  <!-- Navigation -->
+  <nav>
+    <div class="container nav-container">
+      <div class="logo">
+        <i class="fas fa-leaf"></i> Carbon Cure
+      </div>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#about">About Us</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <a href="calculator.html" class="btn">Start Calculator</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <h1>Measure, Understand, and Reduce Your Carbon Footprint</h1>
+      <p>Take control of your company's environmental impact with our AI-powered carbon footprint calculator and get personalized recommendations to become more sustainable.</p>
+      <div class="hero-buttons">
+        <a href="calculator.html" class="btn">Start Calculator</a>
+        <a href="https://ourworldindata.org/co2-emissions" class="btn btn-secondary">Learn More</a>
+      </div>
+      <div class="hero-image">
+        <img src="/api/placeholder/800/400" alt="Carbon footprint dashboard visualization">
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features" class="features" data-aos="fade-up">
+    <div class="container">
+      <div class="section-header">
+        <h2>Transform Your Sustainability Strategy</h2>
+        <p>Our comprehensive platform helps businesses of all sizes measure their environmental impact and take meaningful action.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card" data-aos="zoom-in">
+          <div class="feature-icon"><i class="fas fa-calculator"></i></div>
+          <h3>Precise Measurement</h3>
+          <p>Calculate emissions across energy, transport, supply chain and operations using industry standards.</p>
         </div>
-    </header>
-    
-    <main class="container">
-        <section class="intro">
-            <h2>Start Your Sustainability Journey</h2>
-            <p>Calculate your company's carbon emissions, get a sustainability score, and receive AI-powered recommendations to reduce your environmental impact.</p>
-            <a href="calculator.html" class="btn btn-primary">Start Calculator</a>
-        </section>
-        
-        <section class="features">
-            <div class="feature">
-                <h3>Measure</h3>
-                <p>Calculate your carbon emissions across energy, transportation, and operations.</p>
-            </div>
-            <div class="feature">
-                <h3>Understand</h3>
-                <p>Get a sustainability score and see how you compare to industry standards.</p>
-            </div>
-            <div class="feature">
-                <h3>Improve</h3>
-                <p>Receive AI-powered recommendations tailored to your business.</p>
-            </div>
-        </section>
-    </main>
-    
-    <footer>
-        <div class="container">
-            <p>&copy; 2025 Carbon Cure. Created for Hackathon.</p>
+        <div class="feature-card" data-aos="zoom-in" data-aos-delay="100">
+          <div class="feature-icon"><i class="fas fa-chart-bar"></i></div>
+          <h3>Data-Driven Insights</h3>
+          <p>Get scores, benchmarks, detailed analytics and sustainability reports instantly.</p>
         </div>
-    </footer>
+        <div class="feature-card" data-aos="zoom-in" data-aos-delay="200">
+          <div class="feature-icon"><i class="fas fa-lightbulb"></i></div>
+          <h3>AI Recommendations</h3>
+          <p>Personalized action plans to reduce your footprint and save costs.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section id="how-it-works" class="how-it-works" data-aos="fade-up">
+    <div class="container">
+      <div class="section-header">
+        <h2>How It Works</h2>
+        <p>Start reducing your carbon footprint in three simple steps</p>
+      </div>
+      <div class="steps">
+        <div class="step" data-aos="fade-up">
+          <div class="step-number">1</div>
+          <h3>Input Your Data</h3>
+          <p>Enter your energy, transport, waste, operations details in a few clicks.</p>
+        </div>
+        <div class="step" data-aos="fade-up" data-aos-delay="100">
+          <div class="step-number">2</div>
+          <h3>Get Your Analysis</h3>
+          <p>Receive a full breakdown of your total emissions with industry comparison.</p>
+        </div>
+        <div class="step" data-aos="fade-up" data-aos-delay="200">
+          <div class="step-number">3</div>
+          <h3>Take Action</h3>
+          <p>Implement smart, AI-backed recommendations to improve and track progress.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta" data-aos="zoom-in">
+    <div class="container">
+      <h3>Ready to Make a Difference?</h3>
+      <p>Join thousands of businesses using Carbon Cure to build a more sustainable future. Start your carbon footprint assessment today.</p>
+      <a href="calculator.html" class="btn">Get Started Now</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container footer-content">
+      <div class="footer-column">
+        <h3>Carbon Cure</h3>
+        <p>Empowering businesses to understand and reduce their environmental impact through innovative technology and insights.</p>
+        <div class="social-links">
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-linkedin"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+      <div class="footer-column">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="#">Home</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="#">Pricing</a></li>
+          <li><a href="#">About Us</a></li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h3>Resources</h3>
+        <ul>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Case Studies</a></li>
+          <li><a href="#">Documentation</a></li>
+          <li><a href="#">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h3>Contact</h3>
+        <ul>
+          <li><a href="mailto:info@carboncure.com">info@carboncure.com</a></li>
+          <li><a href="tel:+1234567890">+1 (234) 567-890</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="copyright">
+      <p>&copy; 2025 Carbon Cure. Created for Hackathon. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+  <script>
+    AOS.init({
+      once: true,
+      duration: 1200,
+    });
+  </script>
+
 </body>
 </html>
-

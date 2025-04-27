@@ -1,158 +1,971 @@
-<!-- calculator.html - Emissions input form -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carbon Calculator - Carbon Cure</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2ecc71;
+            --primary-dark: #27ae60;
+            --secondary: #3498db;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --text: #333333;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --gray-bg: #f8f9fa;
+            --border-color: #e0e0e0;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #3498db;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: var(--gray-bg);
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* Navigation */
+        nav {
+            background-color: white;
+            box-shadow: var(--shadow);
+            position: fixed;
+            width: 100%;
+            z-index: 100;
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .logo i {
+            color: var(--primary);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background-color: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-lg {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+        }
+        
+        /* Page Header */
+        .page-header {
+            padding: 8rem 0 3rem;
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.1) 0%, rgba(52, 152, 219, 0.1) 100%);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+        
+        .page-header p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto;
+            color: var(--text);
+        }
+        
+        /* Calculator Section */
+        .calculator-container {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        
+        .calculator-sidebar {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            position: sticky;
+            top: 100px;
+            height: max-content;
+        }
+        
+        .progress-tracker {
+            margin-bottom: 2rem;
+        }
+        
+        .progress-tracker h3 {
+            margin-bottom: 1rem;
+        }
+        
+        .progress-steps {
+            list-style: none;
+        }
+        
+        .progress-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .progress-step:hover {
+            background-color: var(--gray-bg);
+        }
+        
+        .progress-step.active {
+            background-color: rgba(46, 204, 113, 0.1);
+            font-weight: 500;
+        }
+        
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .progress-step.active .step-number {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .progress-step.completed .step-number {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .steps-summary {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .summary-item .label {
+            color: #666;
+        }
+        
+        .summary-item .value {
+            font-weight: 500;
+        }
+        
+        .calculator-content {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            padding: 2rem;
+        }
+        
+        .form-section {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .form-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .form-section h3 {
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            color: var(--dark);
+        }
+        
+        .form-section h3 i {
+            margin-right: 0.5rem;
+            color: var(--primary);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.2);
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .input-with-icon input {
+            padding-right: 3rem;
+        }
+        
+        .input-icon {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+        
+        .input-help {
+            display: block;
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 0.5rem;
+            color: #999;
+            cursor: help;
+        }
+        
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--dark);
+            color: white;
+            text-align: center;
+            border-radius: 5px;
+            padding: 0.5rem;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+            font-weight: normal;
+        }
+        
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Results preview panel */
+        .results-preview {
+            background-color: var(--gray-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .results-preview h4 {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .results-preview h4 i {
+            margin-right: 0.5rem;
+            color: var(--info);
+        }
+        
+        .emissions-metric {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .emissions-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-right: 1rem;
+            color: var(--dark);
+        }
+        
+        .emissions-unit {
+            color: #666;
+        }
+        
+        .sustainability-score {
+            display: flex;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        
+        .score-value {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--warning);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-right: 1rem;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 3rem 0;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+        
+        .footer-column h3 {
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column ul li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-column a {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-column a:hover {
+            color: white;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .social-links a {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+        
+        .social-links a:hover {
+            background-color: var(--primary);
+        }
+        
+        .copyright {
+            margin-top: 2rem;
+            text-align: center;
+            color: #ccc;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .calculator-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .calculator-sidebar {
+                position: static;
+                margin-bottom: 2rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .page-header {
+                padding: 7rem 0 2rem;
+            }
+            
+            .page-header h1 {
+                font-size: 2rem;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .form-actions button {
+                width: 100%;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-    <header>
+    <nav>
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-leaf"></i>
+                Carbon Cure
+            </a>
+            <div class="nav-links">
+                <a href="index.html#features">Features</a>
+                <a href="index.html#how-it-works">How It Works</a>
+                <a href="index.html#about">About Us</a>
+                <a href="index.html#contact">Contact</a>
+            </div>
+            <a href="calculator.html" class="btn">Calculator</a>
+        </div>
+    </nav>
+    
+    <header class="page-header">
         <div class="container">
-            <h1>Carbon Cure</h1>
-            <p>Measure, Understand, and Reduce Your Carbon Footprint</p>
+            <h1>Carbon Emission Calculator</h1>
+            <p>Complete the form below to calculate your company's carbon footprint and receive personalized sustainability recommendations.</p>
         </div>
     </header>
     
     <main class="container">
-        <section class="calculator">
-            <h2>Carbon Emissions Calculator</h2>
+        <div class="calculator-container">
+            <aside class="calculator-sidebar">
+                <div class="progress-tracker">
+                    <h3>Your Progress</h3>
+                    <ul class="progress-steps">
+                        <li class="progress-step active" id="step-1">
+                            <div class="step-number">1</div>
+                            <div class="step-label">Company Information</div>
+                        </li>
+                        <li class="progress-step" id="step-2">
+                            <div class="step-number">2</div>
+                            <div class="step-label">Energy Usage</div>
+                        </li>
+                        <li class="progress-step" id="step-3">
+                            <div class="step-number">3</div>
+                            <div class="step-label">Transportation</div>
+                        </li>
+                        <li class="progress-step" id="step-4">
+                            <div class="step-number">4</div>
+                            <div class="step-label">Manufacturing & Operations</div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="steps-summary">
+                    <h3>Summary</h3>
+                    <div class="summary-item">
+                        <span class="label">Energy Emissions:</span>
+                        <span class="value" id="energy-summary">0 kg CO₂e</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Transportation Emissions:</span>
+                        <span class="value" id="transportation-summary">0 kg CO₂e</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Operations Emissions:</span>
+                        <span class="value" id="operations-summary">0 kg CO₂e</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Total Estimated Emissions:</span>
+                        <span class="value" id="total-summary">0 kg CO₂e</span>
+                    </div>
+                </div>
+            </aside>
             
-            <form id="emissions-form">
-                <div class="form-section">
-                    <h3>Company Information</h3>
-                    <div class="form-group">
-                        <label for="company-name">Company Name</label>
-                        <input type="text" id="company-name" name="company-name" required>
+            <div class="calculator-content">
+                <form id="emissions-form">
+                    <div class="form-section" id="company-section">
+                        <h3><i class="fas fa-building"></i> Company Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="company-name">Company Name</label>
+                                <input type="text" id="company-name" name="company-name" placeholder="Enter your company name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="industry">Industry</label>
+                                <select id="industry" name="industry">
+                                    <option value="">Select your industry</option>
+                                    <option value="manufacturing">Manufacturing</option>
+                                    <option value="technology">Technology</option>
+                                    <option value="retail">Retail</option>
+                                    <option value="services">Services</option>
+                                    <option value="healthcare">Healthcare</option>
+                                    <option value="education">Education</option>
+                                    <option value="food">Food & Beverage</option>
+                                    <option value="finance">Finance</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="employees">Number of Employees</label>
+                                <input type="number" id="employees" name="employees" min="1" placeholder="Enter number of employees">
+                            </div>
+                            <div class="form-group">
+                                <label for="facility-size">Facility Size (sq ft)</label>
+                                <div class="input-with-icon">
+                                    <input type="number" id="facility-size" name="facility-size" min="0" placeholder="Enter total facility square footage">
+                                    <span class="input-icon">ft²</span>
+                                </div>
+                                <span class="input-help">Total square footage of all company facilities</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="industry">Industry</label>
-                        <select id="industry" name="industry">
-                            <option value="manufacturing">Manufacturing</option>
-                            <option value="technology">Technology</option>
-                            <option value="retail">Retail</option>
-                            <option value="services">Services</option>
-                            <option value="other">Other</option>
-                        </select>
+                    
+                    <div class="form-section" id="energy-section">
+                        <h3><i class="fas fa-bolt"></i> Energy Usage</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="electricity">Electricity 
+                                    <span class="tooltip">
+                                        <i class="fas fa-info-circle"></i>
+                                        <span class="tooltip-text">Enter your monthly electricity consumption in kilowatt-hours (kWh).</span>
+                                    </span>
+                                </label>
+                                <div class="input-with-icon">
+                                    <input type="number" id="electricity" name="electricity" min="0" placeholder="Enter monthly usage">
+                                    <span class="input-icon">kWh</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="natural-gas">Natural Gas
+                                    <span class="tooltip">
+                                        <i class="fas fa-info-circle"></i>
+                                        <span class="tooltip-text">Enter your monthly natural gas consumption in therms.</span>
+                                    </span>
+                                </label>
+                                <div class="input-with-icon">
+                                    <input type="number" id="natural-gas" name="natural-gas" min="0" placeholder="Enter monthly usage">
+                                    <span class="input-icon">therms</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="renewable-percentage">Renewable Energy Percentage</label>
+                                <div class="input-with-icon">
+                                    <input type="number" id="renewable-percentage" name="renewable-percentage" min="0" max="100" placeholder="Enter percentage of renewable energy">
+                                    <span class="input-icon">%</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="heating-oil">Heating Oil (if applicable)</label>
+                                <div class="input-with-icon">
+                                    <input type="number" id="heating-oil" name="heating-oil" min="0" placeholder="Enter monthly usage">
+                                    <span class="input-icon">gallons</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="employees">Number of Employees</label>
-                        <input type="number" id="employees" name="employees" min="1">
+                    
+                    <div class="form-section" id="transportation-section">
+                        <h3><i class="fas fa-car"></i> Transportation</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="vehicle-miles">Company Vehicle Miles</label>
+                                <div class="input-with-icon">
+                                    <input type="number" id="vehicle-miles" name="vehicle-miles" min="0" placeholder="Enter monthly mileage">
+                                    <span class="input-icon">miles</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="vehicle-type">Primary Vehicle Type</label>
+                                <select id="vehicle-type" name="vehicle-type">
+                                    <option value="">Select vehicle type</option>
+                                    <option value="gasoline">Gasoline</option>
+                                    <option value="diesel">Diesel</option>
+                                    <option value="hybrid">Hybrid</option>
+                                    <option value="electric">Electric</option>
+                                    <option value="mixed">Mixed Fleet</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="air-travel">Business Air Travel</label>
+                                <div class="input-with-icon">
+                                    <input type="number" id="air-travel" name="air-travel" min="0" placeholder="Enter monthly air miles">
+                                    <span class="input-icon">miles</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="employee-commute">Employee Commuting</label>
+                                <div class="input-with-icon">
+                                    <input type="number" id="employee-commute" name="employee-commute" min="0" placeholder="Enter average miles per employee">
+                                    <span class="input-icon">miles</span>
+                                </div>
+                                <span class="input-help">Average monthly commuting miles per employee</span>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="form-section">
-                    <h3>Energy Usage</h3>
-                    <div class="form-group">
-                        <label for="electricity">Electricity (kWh per month)</label>
-                        <input type="number" id="electricity" name="electricity" min="0">
+                    
+                    <div class="form-section" id="manufacturing-section">
+                        <h3><i class="fas fa-industry"></i> Manufacturing & Operations</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="raw-materials">Raw Materials Used</label>
+                                <div class="input-with-icon">
+                                    <input type="number" id="raw-materials" name="raw-materials" min="0" placeholder="Enter monthly usage">
+                                    <span class="input-icon">tons</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="material-type">Primary Material Type</label>
+                                <select id="material-type" name="material-type">
+                                    <option value="">Select material type</option>
+                                    <option value="metal">Metals</option>
+                                    <option value="plastic">Plastics</option>
+                                    <option value="wood">Wood</option>
+                                    <option value="paper">Paper</option>
+                                    <option value="textile">Textiles</option>
+                                    <option value="mixed">Mixed Materials</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="waste">Waste Generated</label>
+                                <div class="input-with-icon">
+                                    <input type="number" id="waste" name="waste" min="0" placeholder="Enter monthly waste">
+                                    <span class="input-icon">tons</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="recycling-percentage">Recycling Percentage</label>
+                                <div class="input-with-icon">
+                                    <input type="number" id="recycling-percentage" name="recycling-percentage" min="0" max="100" placeholder="Enter recycling percentage">
+                                    <span class="input-icon">%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="results-preview">
+                            <h4><i class="fas fa-chart-bar"></i> Preliminary Results</h4>
+                            <div class="emissions-metric">
+                                <span class="emissions-value" id="emissions-preview">0</span>
+                                <div>
+                                    <span class="emissions-unit">tonnes CO₂e / year</span>
+                                    <p>Estimated carbon footprint based on your inputs</p>
+                                </div>
+                            </div>
+                            <div class="sustainability-score">
+                                <div class="score-value" id="score-preview">--</div>
+                                <div>
+                                    <strong>Sustainability Score</strong>
+                                    <p>Complete all sections for a final score</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="natural-gas">Natural Gas (therms per month)</label>
-                        <input type="number" id="natural-gas" name="natural-gas" min="0">
+                    
+                    <div class="form-actions">
+                        <button type="button" id="prev-btn" class="btn btn-secondary">Previous Step</button>
+                        <button type="button" id="next-btn" class="btn">Next Step</button>
+                        <button type="submit" id="submit-btn" class="btn btn-lg" style="display: none;">Calculate Full Emissions</button>
                     </div>
-                </div>
-                
-                <div class="form-section">
-                    <h3>Transportation</h3>
-                    <div class="form-group">
-                        <label for="vehicle-miles">Company Vehicle Miles (per month)</label>
-                        <input type="number" id="vehicle-miles" name="vehicle-miles" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="air-travel">Business Air Travel (miles per month)</label>
-                        <input type="number" id="air-travel" name="air-travel" min="0">
-                    </div>
-                </div>
-                
-                <div class="form-section">
-                    <h3>Manufacturing & Operations</h3>
-                    <div class="form-group">
-                        <label for="raw-materials">Raw Materials Used (tons per month)</label>
-                        <input type="number" id="raw-materials" name="raw-materials" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="waste">Waste Generated (tons per month)</label>
-                        <input type="number" id="waste" name="waste" min="0">
-                    </div>
-                </div>
-                
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Calculate Emissions</button>
-                </div>
-            </form>
-        </section>
+                </form>
+            </div>
+        </div>
     </main>
     
     <footer>
         <div class="container">
-            <p>&copy; 2025 Carbon Cure. Created for Hackathon.</p>
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Carbon Cure</h3>
+                    <p>Empowering businesses to understand and reduce their environmental impact through innovative technology.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="index.html#features">Features</a></li>
+                        <li><a href="index.html#how-it-works">How It Works</a></li>
+                        <li><a href="#">About Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <ul>
+                        <li><a href="#">Sustainability Guide</a></li>
+                        <li><a href="#">Carbon Calculators</a></li>
+                        <li><a href="#">Industry Reports</a></li>
+                        <li><a href="#">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact</h3>
+                    <ul>
+                        <li><a href="mailto:info@carboncure.com">info@carboncure.com</a></li>
+                        <li><a href="tel:+1234567890">+1 (234) 567-890</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2025 Carbon Cure. Created for Hackathon. All rights reserved.</p>
+            </div>
         </div>
     </footer>
-    
+    <!-- Ensure main.js exists in the same directory or remove this line if unnecessary -->
     <script src="main.js"></script>
-    <script src="api.js"></script>
-    <script>
-        document.getElementById('emissions-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Collect form data
-            const formData = {
+    // This code should replace the existing script at the bottom of calculator.html
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Form sections
+        const sections = [
+            document.getElementById('company-section'),
+            document.getElementById('energy-section'),
+            document.getElementById('transportation-section'),
+            document.getElementById('manufacturing-section')
+        ];
+
+        // Progress steps
+        const steps = [
+            document.getElementById('step-1'),
+            document.getElementById('step-2'),
+            document.getElementById('step-3'),
+            document.getElementById('step-4')
+        ];
+
+        // Buttons
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const submitBtn = document.getElementById('submit-btn');
+
+        let currentStep = 0;
+
+        // Initialize form
+        showStep(currentStep);
+
+        // Previous button click
+        prevBtn.addEventListener('click', function () {
+            if (currentStep > 0) {
+                currentStep--;
+                showStep(currentStep);
+            } else {
+                window.location.href = 'index.html'; // Redirect to index.html
+            }
+        });
+
+        // Next button click
+        nextBtn.addEventListener('click', function () {
+            if (currentStep < sections.length - 1) {
+                currentStep++;
+                showStep(currentStep);
+                updateProgressSteps();
+            }
+        });
+
+        // Submit button click
+        submitBtn.addEventListener('click', function(event) {
+            event.preventDefault();
+            const formData = getFormData();
+            calculateEmissions(formData);
+        });
+
+        // Show the current step
+        function showStep(step) {
+            sections.forEach((section, index) => {
+                section.style.display = index === step ? 'block' : 'none';
+            });
+
+            steps.forEach((stepElement, index) => {
+                stepElement.classList.toggle('active', index === step);
+                if (index < step) {
+                    stepElement.classList.add('completed');
+                } else {
+                    stepElement.classList.remove('completed');
+                }
+            });
+
+            prevBtn.style.display = step === 0 ? 'none' : 'inline-block';
+            nextBtn.style.display = step === sections.length - 1 ? 'none' : 'inline-block';
+            submitBtn.style.display = step === sections.length - 1 ? 'inline-block' : 'none';
+        }
+
+        function updateProgressSteps() {
+            // Update the form summary with current data
+            const formData = getFormData();
+            updateFormSummary(formData);
+        }
+
+        // Update input fields change
+        const inputFields = document.querySelectorAll('input, select');
+        inputFields.forEach(field => {
+            field.addEventListener('change', function() {
+                const formData = getFormData();
+                updateFormSummary(formData);
+            });
+        });
+
+        // Helper function to get form data
+        function getFormData() {
+            return {
                 company: {
-                    name: document.getElementById('company-name').value,
-                    industry: document.getElementById('industry').value,
-                    employees: parseInt(document.getElementById('employees').value) || 0
+                    name: document.getElementById('company-name').value || 'Company Name',
+                    industry: document.getElementById('industry').value || 'Industry',
+                    employees: parseInt(document.getElementById('employees').value) || 0,
+                    facility_size: parseFloat(document.getElementById('facility-size').value) || 0
                 },
                 energy: {
                     electricity: parseFloat(document.getElementById('electricity').value) || 0,
-                    natural_gas: parseFloat(document.getElementById('natural-gas').value) || 0
+                    natural_gas: parseFloat(document.getElementById('natural-gas').value) || 0,
+                    renewable_percentage: parseFloat(document.getElementById('renewable-percentage').value) || 0,
+                    heating_oil: parseFloat(document.getElementById('heating-oil').value) || 0
                 },
                 transportation: {
                     vehicle_miles: parseFloat(document.getElementById('vehicle-miles').value) || 0,
-                    air_travel: parseFloat(document.getElementById('air-travel').value) || 0
+                    vehicle_type: document.getElementById('vehicle-type').value || '',
+                    air_travel: parseFloat(document.getElementById('air-travel').value) || 0,
+                    employee_commute: parseFloat(document.getElementById('employee-commute').value) || 0
                 },
                 manufacturing: {
                     raw_materials: parseFloat(document.getElementById('raw-materials').value) || 0,
-                    waste: parseFloat(document.getElementById('waste').value) || 0
+                    material_type: document.getElementById('material-type').value || '',
+                    waste: parseFloat(document.getElementById('waste').value) || 0,
+                    recycling_percentage: parseFloat(document.getElementById('recycling-percentage').value) || 0
                 }
             };
-            
-            // Send data to API
-            calculateEmissions(formData);
-        });
-    </script>
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('emissions-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Collect form data
-            const formData = {
-                company: {
-                    name: document.getElementById('company-name').value,
-                    industry: document.getElementById('industry').value,
-                    employees: parseInt(document.getElementById('employees').value) || 0
-                },
-                energy: {
-                    electricity: parseFloat(document.getElementById('electricity').value) || 0,
-                    natural_gas: parseFloat(document.getElementById('natural-gas').value) || 0
-                },
-                transportation: {
-                    vehicle_miles: parseFloat(document.getElementById('vehicle-miles').value) || 0,
-                    air_travel: parseFloat(document.getElementById('air-travel').value) || 0
-                },
-                manufacturing: {
-                    raw_materials: parseFloat(document.getElementById('raw-materials').value) || 0,
-                    waste: parseFloat(document.getElementById('waste').value) || 0
-                }
-            };
-            
-            // Send data to API
-            calculateEmissions(formData);
-        });
+        }
     });
 </script>
 </body>
 </html>
-
