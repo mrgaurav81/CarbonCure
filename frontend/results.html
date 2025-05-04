@@ -223,7 +223,7 @@
         }
 
         .chart-container {
-            height: 250px;
+            height: 300px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -636,34 +636,117 @@
             });
         }
 
-        function renderEmissionsChart(data) {
-            const ctx = document.getElementById('emissions-chart').getContext('2d');
-            const chart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: data.emissions_labels,
-                    datasets: [{
-                        label: 'Emissions Breakdown',
-                        data: data.emissions_values,
-                        backgroundColor: '#34c759',
-                        borderColor: '#28a745',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
+        // Replace the existing renderEmissionsChart function in results.html
+function renderEmissionsChart(data) {
+    // Extract emissions data from companyData
+    const energyEmissions = calculateEnergyEmissions(data.energy);
+    const transportEmissions = calculateTransportEmissions(data.transportation);
+    const manufacturingEmissions = calculateManufacturingEmissions(data.manufacturing);
+    
+    const emissionsData = {
+        labels: ['Energy', 'Transportation', 'Manufacturing & Operations'],
+        datasets: [{
+            label: 'Emissions by Category (kg CO₂e)',
+            data: [energyEmissions, transportEmissions, manufacturingEmissions],
+            backgroundColor: [
+                'rgba(52, 152, 219, 0.7)',  // Blue for energy
+                'rgba(155, 89, 182, 0.7)',  // Purple for transportation
+                'rgba(230, 126, 34, 0.7)'   // Orange for manufacturing
+            ],
+            borderColor: [
+                'rgba(52, 152, 219, 1)',
+                'rgba(155, 89, 182, 1)',
+                'rgba(230, 126, 34, 1)'
+            ],
+            borderWidth: 1
+        }]
+    };
+
+    const ctx = document.getElementById('emissions-chart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: emissionsData,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        font: {
+                            size: 10
                         }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.raw;
+                            const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return `${context.label}: ${value.toLocaleString()} kg CO₂e (${percentage}%)`;
                         }
                     }
                 }
-            });
+            }
         }
+    });
+}
+
+// Add these calculation functions for the chart
+function calculateEnergyEmissions(energyData) {
+    // Energy emissions calculation logic
+    const electricityEmissions = energyData.electricity * 0.4; // kg CO₂e per kWh
+    const gasEmissions = energyData.natural_gas * 5.3; // kg CO₂e per therm
+    const oilEmissions = energyData.heating_oil * 10.2; // kg CO₂e per gallon
+    
+    // Apply renewable energy reduction
+    const renewableReduction = (energyData.renewable_percentage / 100);
+    const totalEmissions = (electricityEmissions + gasEmissions + oilEmissions) * (1 - renewableReduction);
+    
+    return Math.round(totalEmissions);
+}
+
+function calculateTransportEmissions(transportData) {
+    // Transport emissions calculation logic
+    // Vehicle emissions factors (kg CO₂e per mile)
+    const emissionFactors = {
+        'gasoline': 0.35,
+        'diesel': 0.38,
+        'hybrid': 0.19,
+        'electric': 0.1,
+        'mixed': 0.28,
+        '': 0.28 // Default value
+    };
+    
+    const vehicleEmissions = transportData.vehicle_miles * (emissionFactors[transportData.vehicle_type] || 0.28);
+    const airTravelEmissions = transportData.air_travel * 0.24; // kg CO₂e per mile
+    const commuteEmissions = transportData.employee_commute * 0.32; // kg CO₂e per mile
+    
+    return Math.round(vehicleEmissions + airTravelEmissions + commuteEmissions);
+}
+
+function calculateManufacturingEmissions(manufacturingData) {
+    // Manufacturing emissions calculation logic
+    // Material emissions factors (kg CO₂e per ton)
+    const materialFactors = {
+        'metal': 5000,
+        'plastic': 3500,
+        'wood': 1200,
+        'paper': 800,
+        'textile': 2500,
+        'mixed': 2500,
+        '': 2500 // Default value
+    };
+    
+    const materialEmissions = manufacturingData.raw_materials * (materialFactors[manufacturingData.material_type] || 2500);
+    
+    // Waste emissions minus recycling benefit
+    const recyclingReduction = manufacturingData.recycling_percentage / 100;
+    const wasteEmissions = manufacturingData.waste * 500 * (1 - recyclingReduction);
+    
+    return Math.round(materialEmissions + wasteEmissions);
+}
 
         function displayRecommendations(recommendations) {
             const recommendationsList = document.getElementById('recommendations-list');
@@ -680,6 +763,313 @@
             recommendationsList.appendChild(card);
         });
     }
+    // Add this code at the bottom of results.html, in the same script block with your other functions
+
+// First, add the HTML for the chat interface within the recommendations section
+document.addEventListener('DOMContentLoaded', function() {
+    const recommendationsCard = document.querySelector('.dashboard-card:last-child');
+    
+    const chatInterface = `
+        <div class="ai-advisor-container">
+            <div class="chat-header">
+                <i class="fas fa-robot"></i>
+                <h4>Carbon Reduction AI Advisor</h4>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="message bot-message">
+                    <div class="message-content">
+                        Hello! I'm your Carbon Reduction AI Advisor. I can help you implement sustainable practices to reduce your carbon footprint. Choose a topic below or ask me a specific question.
+                    </div>
+                </div>
+            </div>
+            <div class="suggestion-buttons">
+                <button class="suggestion-btn" data-query="energy efficiency">Energy Efficiency Tips</button>
+                <button class="suggestion-btn" data-query="transportation alternatives">Transportation Alternatives</button>
+                <button class="suggestion-btn" data-query="waste reduction">Waste Reduction</button>
+                <button class="suggestion-btn" data-query="renewable energy">Renewable Energy Options</button>
+            </div>
+            <div class="chat-input-container">
+                <input type="text" id="chat-input" placeholder="Ask a question about reducing carbon emissions...">
+                <button id="send-btn"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    `;
+    
+    // Insert chat interface after the recommendations grid
+    const recommendationsGrid = document.getElementById('recommendations-list');
+    recommendationsGrid.insertAdjacentHTML('afterend', chatInterface);
+    
+    // Add event listeners for the chat functionality
+    const chatInput = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('send-btn');
+    const chatMessages = document.getElementById('chat-messages');
+    const suggestionBtns = document.querySelectorAll('.suggestion-btn');
+    
+    // Function to add a message to the chat
+    function addMessage(message, isUser) {
+        const messageClass = isUser ? 'user-message' : 'bot-message';
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${messageClass}`;
+        messageDiv.innerHTML = `<div class="message-content">${message}</div>`;
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    // Function to process user message and generate response
+    function processMessage(message) {
+        addMessage(message, true);
+        
+        // Show typing indicator
+        const typingIndicator = document.createElement('div');
+        typingIndicator.className = 'message bot-message typing';
+        typingIndicator.innerHTML = '<div class="message-content"><div class="typing-indicator"><span></span><span></span><span></span></div></div>';
+        chatMessages.appendChild(typingIndicator);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        // Predefined responses for common queries
+        setTimeout(() => {
+            // Remove typing indicator
+            chatMessages.removeChild(typingIndicator);
+            
+            // Generate response based on query
+            let response = '';
+            const lowerMsg = message.toLowerCase();
+            
+            if (lowerMsg.includes('energy efficiency') || lowerMsg.includes('save energy')) {
+                response = `<strong>Energy Efficiency Recommendations:</strong><br>
+                1. Conduct an energy audit to identify efficiency opportunities<br>
+                2. Upgrade to LED lighting throughout your facilities<br>
+                3. Install programmable thermostats and optimize HVAC schedules<br>
+                4. Implement power management settings on all devices<br>
+                5. Consider energy-efficient equipment upgrades during replacement cycles`;
+            } 
+            else if (lowerMsg.includes('transportation') || lowerMsg.includes('vehicle')) {
+                response = `<strong>Transportation Carbon Reduction:</strong><br>
+                1. Implement a remote work policy where possible<br>
+                2. Establish a corporate carpooling program<br>
+                3. Gradually transition to electric or hybrid vehicles<br>
+                4. Optimize delivery/shipping routes using logistics software<br>
+                5. Offer incentives for employees using public transportation`;
+            }
+            else if (lowerMsg.includes('waste') || lowerMsg.includes('recycling')) {
+                response = `<strong>Waste Reduction Strategies:</strong><br>
+                1. Implement comprehensive recycling stations throughout facilities<br>
+                2. Move towards paperless operations where possible<br>
+                3. Conduct waste audits to identify main sources of waste<br>
+                4. Partner with suppliers for reduced packaging<br>
+                5. Compost organic waste from cafeterias/break rooms`;
+            }
+            else if (lowerMsg.includes('renewable') || lowerMsg.includes('solar') || lowerMsg.includes('green energy')) {
+                response = `<strong>Renewable Energy Options:</strong><br>
+                1. Install solar panels on suitable roof spaces or property<br>
+                2. Purchase Renewable Energy Certificates (RECs)<br>
+                3. Explore Power Purchase Agreements (PPAs) with renewable providers<br>
+                4. Investigate on-site wind or geothermal potential<br>
+                5. Join community solar projects if available in your region`;
+            }
+            else if (lowerMsg.includes('cost') || lowerMsg.includes('saving') || lowerMsg.includes('budget')) {
+                response = `<strong>Cost-Effective Sustainability:</strong><br>
+                1. Focus first on no-cost behavioral changes (turning off equipment, etc.)<br>
+                2. Calculate ROI for each initiative to prioritize high-return projects<br>
+                3. Look into tax incentives and rebates for green improvements<br>
+                4. Start with pilot projects to demonstrate value before scaling<br>
+                5. Track and report savings to build support for future initiatives`;
+            }
+            else {
+                response = `Thank you for your question about "${message}". To provide the most accurate recommendations for your specific situation, I'd suggest scheduling a detailed consultation with one of our sustainability experts who can analyze your specific needs and industry context. In the meantime, please check out our suggested topics below for general carbon reduction strategies.`;
+            }
+            
+            addMessage(response, false);
+        }, 1500);
+    }
+    
+    // Event listener for send button
+    sendBtn.addEventListener('click', function() {
+        const message = chatInput.value.trim();
+        if (message) {
+            processMessage(message);
+            chatInput.value = '';
+        }
+    });
+    
+    // Event listener for Enter key
+    chatInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const message = chatInput.value.trim();
+            if (message) {
+                processMessage(message);
+                chatInput.value = '';
+            }
+        }
+    });
+    
+    // Event listeners for suggestion buttons
+    suggestionBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const query = this.getAttribute('data-query');
+            processMessage(query);
+        });
+    });
+});
+
+// Add this CSS to the <style> section in results.html
+document.addEventListener('DOMContentLoaded', function() {
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+        .ai-advisor-container {
+            margin-top: 2rem;
+            border: 1px solid var(--gray-light);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            background-color: white;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .chat-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chat-header h4 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+        
+        .chat-messages {
+            height: 350px;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            background-color: #f9f9f9;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 0.5rem 0;
+        }
+        
+        .user-message {
+            align-self: flex-end;
+        }
+        
+        .bot-message {
+            align-self: flex-start;
+        }
+        
+        .message-content {
+            padding: 0.8rem 1rem;
+            border-radius: 18px;
+            line-height: 1.4;
+        }
+        
+        .user-message .message-content {
+            background-color: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .bot-message .message-content {
+            background-color: #e9e9e9;
+            color: var(--dark);
+            border-bottom-left-radius: 4px;
+        }
+        
+        .chat-input-container {
+            display: flex;
+            padding: 1rem;
+            border-top: 1px solid var(--gray-light);
+            background-color: white;
+        }
+        
+        #chat-input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--gray-light);
+            border-radius: 30px;
+            outline: none;
+            font-size: 0.95rem;
+        }
+        
+        #send-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-left: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .suggestion-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 1rem;
+            border-top: 1px solid var(--gray-light);
+            background-color: white;
+        }
+        
+        .suggestion-btn {
+            background-color: #f0f0f0;
+            border: 1px solid var(--gray-light);
+            border-radius: 16px;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .suggestion-btn:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #888;
+            display: inline-block;
+            animation: typing 1s infinite ease-in-out;
+        }
+        
+        .typing-indicator span:nth-child(1) {
+            animation-delay: 0s;
+        }
+        
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+    `;
+    document.head.appendChild(styleElement);
+});
 </script>
  </body>
 </html>
